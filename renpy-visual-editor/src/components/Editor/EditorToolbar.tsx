@@ -17,8 +17,6 @@ import ImageIcon from '@mui/icons-material/Image';
 import PersonIcon from '@mui/icons-material/Person';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import LabelIcon from '@mui/icons-material/Label';
-import PlayCircleIcon from '@mui/icons-material/PlayCircle';
-import CodeIcon from '@mui/icons-material/Code';
 import { RenpyElementType } from '../../types/renpy';
 
 interface EditorToolbarProps {

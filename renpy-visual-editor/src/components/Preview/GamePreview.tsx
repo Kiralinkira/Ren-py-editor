@@ -15,7 +15,7 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
-import { RenpyScript, PreviewState, RenpyElement } from '../../types/renpy';
+import { RenpyScript, PreviewState } from '../../types/renpy';
 
 interface GamePreviewProps {
   script: RenpyScript;
@@ -141,7 +141,7 @@ export const GamePreview: React.FC<GamePreviewProps> = ({ script }) => {
     if (previewState.isPlaying && currentElement) {
       processCurrentElement();
     }
-  }, [previewState.currentElementIndex, previewState.isPlaying, processCurrentElement]);
+  }, [previewState.currentElementIndex, previewState.isPlaying, currentElement, processCurrentElement]);
 
   const handleMenuChoice = (choiceIndex: number) => {
     setMenuChoices(null);

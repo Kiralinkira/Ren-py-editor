@@ -98,49 +98,54 @@ export const ImportExport: React.FC<ImportExportProps> = ({ script, onImport }) 
 
   return (
     <>
-      <Box display="flex" gap={2}>
+      <Box display="flex" gap={1} flexWrap="wrap" justifyContent="flex-end">
         <ButtonGroup variant="outlined" size="small">
           <Button
             startIcon={<SaveIcon />}
             onClick={handleSaveToLocalStorage}
             title="Save to browser"
+            sx={{ minWidth: 'auto', px: 1 }}
           >
-            Save
+            <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>Save</Box>
+            <Box sx={{ display: { xs: 'inline', sm: 'none' } }}><SaveIcon /></Box>
           </Button>
           <Button
             startIcon={<FolderOpenIcon />}
             onClick={handleLoadFromLocalStorage}
             title="Load from browser"
+            sx={{ minWidth: 'auto', px: 1 }}
           >
-            Load
+            <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>Load</Box>
+            <Box sx={{ display: { xs: 'inline', sm: 'none' } }}><FolderOpenIcon /></Box>
           </Button>
         </ButtonGroup>
 
         <ButtonGroup variant="outlined" size="small">
           <Button
-            startIcon={<DownloadIcon />}
             onClick={handleExportProject}
-            title="Export project as JSON"
+            title="Export project"
+            sx={{ minWidth: 'auto', px: 1 }}
           >
-            Export Project
+            <DownloadIcon />
           </Button>
           <Button
-            startIcon={<UploadFileIcon />}
             onClick={handleImportProject}
-            title="Import project from JSON"
+            title="Import project"
+            sx={{ minWidth: 'auto', px: 1 }}
           >
-            Import Project
+            <UploadFileIcon />
           </Button>
         </ButtonGroup>
 
         <Button
           variant="outlined"
           size="small"
-          startIcon={<UploadFileIcon />}
           onClick={handleImportRenpyScript}
           title="Import Ren'Py script"
+          sx={{ minWidth: 'auto', px: 1 }}
         >
-          Import Script
+          <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>Import Script</Box>
+          <Box sx={{ display: { xs: 'inline', sm: 'none' } }}>Script</Box>
         </Button>
       </Box>
 

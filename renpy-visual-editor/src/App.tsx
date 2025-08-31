@@ -11,14 +11,13 @@ import {
   Tab,
   Paper,
   Grid,
-  Container,
   useMediaQuery,
   IconButton,
   Drawer,
   List,
   ListItem,
   ListItemText,
-  Divider
+  Button
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { EditorToolbar } from './components/Editor/EditorToolbar';
@@ -160,6 +159,12 @@ function App() {
       ...prev,
       elements: [...prev.elements, newElement]
     }));
+    
+    // Auto-select the new element
+    setSelectedElementId(newElement.id);
+    if (isMobile) {
+      setMobilePanelView('properties');
+    }
   };
 
   const handleUpdateElement = (updatedElement: RenpyElement) => {
@@ -176,6 +181,10 @@ function App() {
       ...prev,
       elements: prev.elements.filter(el => el.id !== id)
     }));
+    // Clear selection if deleted element was selected
+    if (selectedElementId === id) {
+      setSelectedElementId(undefined);
+    }
   };
 
   const handleUpdateCharacters = (characters: typeof script.characters) => {
@@ -227,20 +236,28 @@ function App() {
       <CssBaseline />
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
         <AppBar position="static">
-          <Toolbar>
+          <Toolbar sx={{ gap: 1 }}>
             {isMobile && activeTab === 0 && (
               <IconButton
                 edge="start"
                 color="inherit"
                 aria-label="menu"
                 onClick={() => setMobileMenuOpen(true)}
-                sx={{ mr: 2 }}
+                size="small"
               >
                 <MenuIcon />
               </IconButton>
             )}
-            <Typography variant={isMobile ? 'body1' : 'h6'} sx={{ flexGrow: 1 }}>
-              Ren'Py Visual Editor
+            <Typography 
+              variant={isMobile ? 'body1' : 'h6'} 
+              sx={{ 
+                flexGrow: 1,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}
+            >
+              {isMobile ? 'Ren\'Py Editor' : 'Ren\'Py Visual Editor'}
             </Typography>
             {!isMobile && <ImportExport script={script} onImport={handleImportScript} />}
           </Toolbar>
@@ -299,15 +316,27 @@ function App() {
                       )}
                       {mobilePanelView === 'properties' && (
                         <>
-                          <Typography variant="h6" gutterBottom>
-                            Element Properties
-                          </Typography>
+                          <Box display="flex" alignItems="center" gap={2} mb={2}>
+                            <Button
+                              size="small"
+                              onClick={() => setMobilePanelView('elements')}
+                              sx={{ minWidth: 'auto' }}
+                            >
+                              ← Back
+                            </Button>
+                            <Typography variant="h6" sx={{ flex: 1 }}>
+                              Element Properties
+                            </Typography>
+                          </Box>
                           {selectedElement ? (
                             <ElementEditor
                               element={selectedElement}
                               characters={script.characters}
                               onUpdate={handleUpdateElement}
-                              onDelete={handleDeleteElement}
+                              onDelete={(id) => {
+                                handleDeleteElement(id);
+                                setMobilePanelView('elements');
+                              }}
                             />
                           ) : (
                             <Paper sx={{ p: 4, textAlign: 'center' }}>
@@ -387,9 +416,19 @@ function App() {
         </Box>
 
         {isMobile && (
-          <Box sx={{ p: 1, borderTop: 1, borderColor: 'divider' }}>
+          <Paper 
+            elevation={3} 
+            sx={{ 
+              position: 'sticky',
+              bottom: 0,
+              p: 1, 
+              borderTop: 1, 
+              borderColor: 'divider',
+              overflow: 'auto'
+            }}
+          >
             <ImportExport script={script} onImport={handleImportScript} />
-          </Box>
+          </Paper>
         )}
       </Box>
     </ThemeProvider>
