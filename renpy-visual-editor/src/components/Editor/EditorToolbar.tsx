@@ -18,6 +18,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import LabelIcon from '@mui/icons-material/Label';
 import { RenpyElementType } from '../../types/renpy';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface EditorToolbarProps {
   onAddElement: (type: RenpyElementType) => void;
@@ -26,6 +27,7 @@ interface EditorToolbarProps {
 export const EditorToolbar: React.FC<EditorToolbarProps> = ({ onAddElement }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const { t } = useLanguage();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -42,24 +44,24 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ onAddElement }) =>
   };
 
   const quickActions = [
-    { type: 'dialogue' as RenpyElementType, icon: <ChatIcon />, label: 'Dialogue' },
-    { type: 'scene' as RenpyElementType, icon: <ImageIcon />, label: 'Scene' },
-    { type: 'show' as RenpyElementType, icon: <PersonIcon />, label: 'Show Character' },
-    { type: 'menu' as RenpyElementType, icon: <MenuBookIcon />, label: 'Menu' },
-    { type: 'label' as RenpyElementType, icon: <LabelIcon />, label: 'Label' },
+    { type: 'dialogue' as RenpyElementType, icon: <ChatIcon />, label: t('editor.toolbar.dialogue') },
+    { type: 'scene' as RenpyElementType, icon: <ImageIcon />, label: t('editor.toolbar.scene') },
+    { type: 'show' as RenpyElementType, icon: <PersonIcon />, label: t('editor.toolbar.character') },
+    { type: 'menu' as RenpyElementType, icon: <MenuBookIcon />, label: t('editor.toolbar.menu') },
+    { type: 'label' as RenpyElementType, icon: <LabelIcon />, label: t('editor.toolbar.label') },
   ];
 
   const moreActions = [
-    { type: 'hide' as RenpyElementType, label: 'Hide Character' },
-    { type: 'play' as RenpyElementType, label: 'Play Audio' },
-    { type: 'stop' as RenpyElementType, label: 'Stop Audio' },
-    { type: 'jump' as RenpyElementType, label: 'Jump to Label' },
-    { type: 'call' as RenpyElementType, label: 'Call Label' },
-    { type: 'variable' as RenpyElementType, label: 'Set Variable' },
-    { type: 'if' as RenpyElementType, label: 'If Statement' },
-    { type: 'python' as RenpyElementType, label: 'Python Code' },
-    { type: 'pause' as RenpyElementType, label: 'Pause' },
-    { type: 'return' as RenpyElementType, label: 'Return' },
+    { type: 'hide' as RenpyElementType, label: t('editor.toolbar.hide') },
+    { type: 'play' as RenpyElementType, label: t('editor.toolbar.playAudio') },
+    { type: 'stop' as RenpyElementType, label: t('editor.toolbar.stopAudio') },
+    { type: 'jump' as RenpyElementType, label: t('editor.toolbar.jump') },
+    { type: 'call' as RenpyElementType, label: t('editor.toolbar.call') },
+    { type: 'variable' as RenpyElementType, label: t('editor.toolbar.setVariable') },
+    { type: 'if' as RenpyElementType, label: t('editor.toolbar.ifStatement') },
+    { type: 'python' as RenpyElementType, label: t('editor.toolbar.pythonCode') },
+    { type: 'pause' as RenpyElementType, label: t('editor.toolbar.pause') },
+    { type: 'return' as RenpyElementType, label: t('editor.toolbar.return') },
   ];
 
   return (
@@ -109,7 +111,7 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ onAddElement }) =>
               startIcon={<AddIcon />}
               onClick={handleClick}
             >
-              More Elements
+              {t('editor.toolbar.moreElements')}
             </Button>
           </>
         )}
