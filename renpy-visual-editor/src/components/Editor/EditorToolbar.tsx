@@ -6,7 +6,10 @@ import {
   Divider,
   Menu,
   MenuItem,
-  Tooltip
+  Tooltip,
+  useTheme,
+  useMediaQuery,
+  IconButton
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import ChatIcon from '@mui/icons-material/Chat';
@@ -23,6 +26,8 @@ interface EditorToolbarProps {
 }
 
 export const EditorToolbar: React.FC<EditorToolbarProps> = ({ onAddElement }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -60,31 +65,56 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ onAddElement }) =>
   ];
 
   return (
-    <Box sx={{ p: 2, bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider' }}>
-      <Box display="flex" gap={2} alignItems="center" flexWrap="wrap">
-        <ButtonGroup variant="contained" size="small">
-          {quickActions.map((action) => (
-            <Tooltip key={action.type} title={`Add ${action.label}`}>
-              <Button
-                startIcon={action.icon}
-                onClick={() => handleAdd(action.type)}
-              >
-                {action.label}
-              </Button>
-            </Tooltip>
-          ))}
-        </ButtonGroup>
+    <Box sx={{ p: isMobile ? 1 : 2, bgcolor: 'background.paper', borderBottom: 1, borderColor: 'divider' }}>
+      <Box display="flex" gap={isMobile ? 1 : 2} alignItems="center" flexWrap="wrap">
+        {isMobile ? (
+          <>
+            {quickActions.map((action) => (
+              <Tooltip key={action.type} title={`Add ${action.label}`}>
+                <IconButton
+                  color="primary"
+                  onClick={() => handleAdd(action.type)}
+                  size="small"
+                >
+                  {action.icon}
+                </IconButton>
+              </Tooltip>
+            ))}
+            <IconButton
+              color="default"
+              onClick={handleClick}
+              size="small"
+            >
+              <AddIcon />
+            </IconButton>
+          </>
+        ) : (
+          <>
+            <ButtonGroup variant="contained" size="small">
+              {quickActions.map((action) => (
+                <Tooltip key={action.type} title={`Add ${action.label}`}>
+                  <Button
+                    startIcon={action.icon}
+                    onClick={() => handleAdd(action.type)}
+                  >
+                    {action.label}
+                  </Button>
+                </Tooltip>
+              ))}
+            </ButtonGroup>
 
-        <Divider orientation="vertical" flexItem />
+            <Divider orientation="vertical" flexItem />
 
-        <Button
-          variant="outlined"
-          size="small"
-          startIcon={<AddIcon />}
-          onClick={handleClick}
-        >
-          More Elements
-        </Button>
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<AddIcon />}
+              onClick={handleClick}
+            >
+              More Elements
+            </Button>
+          </>
+        )}
 
         <Menu
           anchorEl={anchorEl}

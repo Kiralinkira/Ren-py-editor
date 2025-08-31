@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Paper,
@@ -8,7 +8,8 @@ import {
   LinearProgress,
   Fade,
   Slide,
-  Zoom
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
@@ -21,6 +22,9 @@ interface GamePreviewProps {
 }
 
 export const GamePreview: React.FC<GamePreviewProps> = ({ script }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  
   const [previewState, setPreviewState] = useState<PreviewState>({
     currentElementIndex: 0,
     variables: {},
@@ -34,97 +38,7 @@ export const GamePreview: React.FC<GamePreviewProps> = ({ script }) => {
 
   const currentElement = script.elements[previewState.currentElementIndex];
 
-  useEffect(() => {
-    if (previewState.isPlaying && currentElement) {
-      processCurrentElement();
-    }
-  }, [previewState.currentElementIndex, previewState.isPlaying]);
-
-  const processCurrentElement = () => {
-    if (!currentElement) return;
-
-    setShowText(false);
-    setTransition(currentElement.transition || '');
-
-    setTimeout(() => {
-      switch (currentElement.type) {
-        case 'scene':
-          setPreviewState(prev => ({
-            ...prev,
-            background: currentElement.image,
-            visibleCharacters: {} // Clear all characters on scene change
-          }));
-          break;
-
-        case 'show':
-          if (currentElement.image) {
-            const [charName, ...expression] = currentElement.image.split(' ');
-            setPreviewState(prev => ({
-              ...prev,
-              visibleCharacters: {
-                ...prev.visibleCharacters,
-                [charName]: {
-                  character: charName,
-                  image: currentElement.image!,
-                  position: currentElement.position || 'center'
-                }
-              }
-            }));
-          }
-          break;
-
-        case 'hide':
-          if (currentElement.image) {
-            const charName = currentElement.image.split(' ')[0];
-            setPreviewState(prev => {
-              const newChars = { ...prev.visibleCharacters };
-              delete newChars[charName];
-              return { ...prev, visibleCharacters: newChars };
-            });
-          }
-          break;
-
-        case 'menu':
-          setMenuChoices(currentElement.choices);
-          setPreviewState(prev => ({ ...prev, isPlaying: false }));
-          return;
-
-        case 'variable':
-          if (currentElement.variable) {
-            setPreviewState(prev => ({
-              ...prev,
-              variables: {
-                ...prev.variables,
-                [currentElement.variable!]: currentElement.value
-              }
-            }));
-          }
-          break;
-
-        case 'play':
-          if (currentElement.channel === 'music') {
-            setPreviewState(prev => ({
-              ...prev,
-              backgroundMusic: currentElement.audio
-            }));
-          }
-          break;
-      }
-
-      setShowText(true);
-
-      // Auto-advance for non-dialogue elements
-      if (currentElement.type !== 'dialogue' && currentElement.type !== 'menu') {
-        setTimeout(() => {
-          if (previewState.isPlaying) {
-            advance();
-          }
-        }, 500);
-      }
-    }, 300);
-  };
-
-  const advance = () => {
+  const advance = useCallback(() => {
     setMenuChoices(null);
     if (previewState.currentElementIndex < script.elements.length - 1) {
       setPreviewState(prev => ({
@@ -134,7 +48,100 @@ export const GamePreview: React.FC<GamePreviewProps> = ({ script }) => {
     } else {
       setPreviewState(prev => ({ ...prev, isPlaying: false }));
     }
-  };
+  }, [previewState.currentElementIndex, script.elements.length]);
+
+  const processCurrentElement = useCallback(() => {
+    if (!currentElement) return;
+
+    setShowText(false);
+    setTransition(currentElement.transition || '');
+
+    const element = currentElement; // Capture for closure
+    const elementType = element.type as string; // Type assertion for comparison
+    
+    setTimeout(() => {
+      switch (element.type) {
+        case 'scene':
+          setPreviewState(prev => ({
+            ...prev,
+            background: element.image,
+            visibleCharacters: {} // Clear all characters on scene change
+          }));
+          break;
+
+        case 'show':
+          if (element.image) {
+            const [charName] = element.image.split(' ');
+            setPreviewState(prev => ({
+              ...prev,
+              visibleCharacters: {
+                ...prev.visibleCharacters,
+                [charName]: {
+                  character: charName,
+                  image: element.image!,
+                  position: element.position || 'center'
+                }
+              }
+            }));
+          }
+          break;
+
+        case 'hide':
+          if (element.image) {
+            const charName = element.image.split(' ')[0];
+            setPreviewState(prev => {
+              const newChars = { ...prev.visibleCharacters };
+              delete newChars[charName];
+              return { ...prev, visibleCharacters: newChars };
+            });
+          }
+          break;
+
+        case 'menu':
+          setMenuChoices(element.choices);
+          setPreviewState(prev => ({ ...prev, isPlaying: false }));
+          return;
+
+        case 'variable':
+          if (element.variable) {
+            setPreviewState(prev => ({
+              ...prev,
+              variables: {
+                ...prev.variables,
+                [element.variable!]: element.value
+              }
+            }));
+          }
+          break;
+
+        case 'play':
+          if (element.channel === 'music') {
+            setPreviewState(prev => ({
+              ...prev,
+              backgroundMusic: element.audio
+            }));
+          }
+          break;
+      }
+
+      setShowText(true);
+
+      // Auto-advance for non-dialogue elements
+      if (elementType !== 'dialogue' && elementType !== 'menu') {
+        setTimeout(() => {
+          if (previewState.isPlaying) {
+            advance();
+          }
+        }, 500);
+      }
+    }, 300);
+  }, [currentElement, previewState.isPlaying, advance]);
+
+  useEffect(() => {
+    if (previewState.isPlaying && currentElement) {
+      processCurrentElement();
+    }
+  }, [previewState.currentElementIndex, previewState.isPlaying, processCurrentElement]);
 
   const handleMenuChoice = (choiceIndex: number) => {
     setMenuChoices(null);
@@ -188,6 +195,13 @@ export const GamePreview: React.FC<GamePreviewProps> = ({ script }) => {
     }
   };
 
+  // Handle click to advance for mobile
+  const handleScreenClick = useCallback(() => {
+    if (previewState.isPlaying && currentElement?.type === 'dialogue' && !menuChoices) {
+      advance();
+    }
+  }, [previewState.isPlaying, currentElement, menuChoices, advance]);
+
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Paper
@@ -210,48 +224,58 @@ export const GamePreview: React.FC<GamePreviewProps> = ({ script }) => {
               ? `linear-gradient(to bottom, #4a5568, #2d3748)`
               : 'linear-gradient(to bottom, #87CEEB, #98D8C8)',
             backgroundSize: 'cover',
-            backgroundPosition: 'center'
+            backgroundPosition: 'center',
+            cursor: previewState.isPlaying && currentElement?.type === 'dialogue' ? 'pointer' : 'default'
           }}
+          onClick={handleScreenClick}
         >
           {/* Characters */}
-          {Object.values(previewState.visibleCharacters).map((char) => (
-            <Box
-              key={char.character}
-              sx={{
-                position: 'absolute',
-                bottom: 0,
-                left: char.position === 'left' ? '10%' : char.position === 'right' ? '60%' : '35%',
-                width: '30%',
-                height: '80%',
-                display: 'flex',
-                alignItems: 'flex-end',
-                justifyContent: 'center',
-                transition: 'all 0.5s ease'
-              }}
-            >
-              {/* Character Placeholder */}
+          {Object.values(previewState.visibleCharacters).map((char) => {
+            const positions = {
+              left: isMobile ? '5%' : '10%',
+              right: isMobile ? '55%' : '60%',
+              center: isMobile ? '30%' : '35%'
+            };
+            
+            return (
               <Box
+                key={char.character}
                 sx={{
-                  width: '80%',
-                  height: '90%',
-                  background: 'linear-gradient(to bottom, #667eea, #764ba2)',
-                  borderRadius: '50% 50% 0 0',
-                  position: 'relative',
-                  '&::before': {
-                    content: '""',
-                    position: 'absolute',
-                    top: '15%',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: '40%',
-                    height: '40%',
-                    background: '#fbbf24',
-                    borderRadius: '50%'
-                  }
+                  position: 'absolute',
+                  bottom: 0,
+                  left: positions[char.position as keyof typeof positions] || positions.center,
+                  width: isMobile ? '40%' : '30%',
+                  height: isMobile ? '70%' : '80%',
+                  display: 'flex',
+                  alignItems: 'flex-end',
+                  justifyContent: 'center',
+                  transition: 'all 0.5s ease'
                 }}
-              />
-            </Box>
-          ))}
+              >
+                {/* Character Placeholder */}
+                <Box
+                  sx={{
+                    width: '80%',
+                    height: '90%',
+                    background: 'linear-gradient(to bottom, #667eea, #764ba2)',
+                    borderRadius: '50% 50% 0 0',
+                    position: 'relative',
+                    '&::before': {
+                      content: '""',
+                      position: 'absolute',
+                      top: '15%',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      width: '40%',
+                      height: '40%',
+                      background: '#fbbf24',
+                      borderRadius: '50%'
+                    }
+                  }}
+                />
+              </Box>
+            );
+          })}
 
           {/* Dialogue Box */}
           {currentElement && (currentElement.type === 'dialogue' || menuChoices) && (
@@ -262,8 +286,8 @@ export const GamePreview: React.FC<GamePreviewProps> = ({ script }) => {
                 left: 0,
                 right: 0,
                 bgcolor: 'rgba(0, 0, 0, 0.8)',
-                p: 3,
-                minHeight: '25%'
+                p: isMobile ? 2 : 3,
+                minHeight: isMobile ? '30%' : '25%'
               }}
             >
               {renderTransition(
@@ -272,10 +296,11 @@ export const GamePreview: React.FC<GamePreviewProps> = ({ script }) => {
                     <>
                       {currentElement.character && (
                         <Typography
-                          variant="h6"
+                          variant={isMobile ? 'body1' : 'h6'}
                           sx={{
                             color: getCharacterColor(currentElement.character),
-                            mb: 1
+                            mb: 1,
+                            fontWeight: 'bold'
                           }}
                         >
                           {getCharacterName(currentElement.character)}
@@ -283,7 +308,11 @@ export const GamePreview: React.FC<GamePreviewProps> = ({ script }) => {
                       )}
                       <Typography
                         variant="body1"
-                        sx={{ color: '#fff', lineHeight: 1.8 }}
+                        sx={{ 
+                          color: '#fff', 
+                          lineHeight: 1.8,
+                          fontSize: isMobile ? '0.9rem' : '1rem'
+                        }}
                       >
                         {currentElement.content}
                       </Typography>
@@ -292,7 +321,10 @@ export const GamePreview: React.FC<GamePreviewProps> = ({ script }) => {
 
                   {menuChoices && (
                     <Box>
-                      <Typography variant="h6" sx={{ color: '#fff', mb: 2 }}>
+                      <Typography 
+                        variant={isMobile ? 'body1' : 'h6'} 
+                        sx={{ color: '#fff', mb: 2, fontWeight: 'bold' }}
+                      >
                         Choose:
                       </Typography>
                       {menuChoices.map((choice: any, index: number) => (
@@ -304,6 +336,8 @@ export const GamePreview: React.FC<GamePreviewProps> = ({ script }) => {
                             mb: 1,
                             color: '#fff',
                             borderColor: '#fff',
+                            fontSize: isMobile ? '0.875rem' : '1rem',
+                            py: isMobile ? 1 : 1.5,
                             '&:hover': {
                               borderColor: '#fff',
                               bgcolor: 'rgba(255, 255, 255, 0.1)'
@@ -325,7 +359,7 @@ export const GamePreview: React.FC<GamePreviewProps> = ({ script }) => {
         {/* Progress Bar */}
         <LinearProgress
           variant="determinate"
-          value={(previewState.currentElementIndex / script.elements.length) * 100}
+          value={(previewState.currentElementIndex / Math.max(script.elements.length, 1)) * 100}
           sx={{ height: 4 }}
         />
 
@@ -335,18 +369,23 @@ export const GamePreview: React.FC<GamePreviewProps> = ({ script }) => {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            p: 1,
+            p: isMobile ? 0.5 : 1,
             bgcolor: 'background.paper',
-            gap: 1
+            gap: isMobile ? 0.5 : 1
           }}
         >
-          <IconButton onClick={restart} title="Restart">
+          <IconButton 
+            onClick={restart} 
+            title="Restart"
+            size={isMobile ? 'small' : 'medium'}
+          >
             <RestartAltIcon />
           </IconButton>
           <IconButton
             onClick={togglePlay}
             color="primary"
             title={previewState.isPlaying ? 'Pause' : 'Play'}
+            size={isMobile ? 'small' : 'medium'}
           >
             {previewState.isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
           </IconButton>
@@ -354,17 +393,21 @@ export const GamePreview: React.FC<GamePreviewProps> = ({ script }) => {
             onClick={skip}
             disabled={!currentElement || currentElement.type === 'menu'}
             title="Next"
+            size={isMobile ? 'small' : 'medium'}
           >
             <SkipNextIcon />
           </IconButton>
-          <Typography variant="body2" sx={{ ml: 2 }}>
+          <Typography 
+            variant={isMobile ? 'caption' : 'body2'} 
+            sx={{ ml: isMobile ? 1 : 2 }}
+          >
             {previewState.currentElementIndex + 1} / {script.elements.length}
           </Typography>
         </Box>
       </Paper>
 
       {/* Click to advance hint */}
-      {previewState.isPlaying && currentElement?.type === 'dialogue' && (
+      {previewState.isPlaying && currentElement?.type === 'dialogue' && !isMobile && (
         <Box
           sx={{
             position: 'absolute',
