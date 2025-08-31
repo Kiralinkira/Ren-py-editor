@@ -127,6 +127,56 @@ export const translations = {
       choice: '选择分支',
       character: '角色介绍',
       scene: '场景切换'
+    },
+    search: {
+      placeholder: '搜索元素...',
+      clear: '清除过滤',
+      filter: '过滤选项',
+      filterByType: '按类型过滤'
+    },
+    batch: {
+      title: '批量编辑',
+      apply: '应用更改',
+      selectAll: '全选',
+      deselectAll: '取消全选',
+      selected: '已选择'
+    },
+    assets: {
+      title: '资源管理器',
+      backgrounds: '背景',
+      characters: '角色',
+      audio: '音频',
+      search: '搜索资源...',
+      upload: '上传文件',
+      insertPath: '插入路径'
+    },
+    variables: {
+      title: '变量管理器',
+      name: '变量名',
+      type: '类型',
+      value: '默认值',
+      description: '描述',
+      search: '搜索变量...',
+      add: '添加变量',
+      insert: '插入变量'
+    },
+    quickJump: {
+      title: '快速跳转',
+      search: '搜索标签、书签...',
+      label: '标签',
+      bookmark: '书签',
+      recent: '最近',
+      addBookmark: '添加书签',
+      removeBookmark: '移除书签'
+    },
+    validation: {
+      title: '脚本验证',
+      noErrors: '没有发现错误',
+      errors: '发现错误',
+      warnings: '警告',
+      unusedLabel: '未使用的标签',
+      undefinedJump: '未定义的跳转目标',
+      missingCharacter: '未定义的角色'
     }
   },
   en: {
@@ -257,6 +307,56 @@ export const translations = {
       choice: 'Choice Branch',
       character: 'Character Introduction',
       scene: 'Scene Transition'
+    },
+    search: {
+      placeholder: 'Search elements...',
+      clear: 'Clear filters',
+      filter: 'Filter options',
+      filterByType: 'Filter by type'
+    },
+    batch: {
+      title: 'Batch Edit',
+      apply: 'Apply Changes',
+      selectAll: 'Select All',
+      deselectAll: 'Deselect All',
+      selected: 'Selected'
+    },
+    assets: {
+      title: 'Asset Manager',
+      backgrounds: 'Backgrounds',
+      characters: 'Characters',
+      audio: 'Audio',
+      search: 'Search assets...',
+      upload: 'Upload File',
+      insertPath: 'Insert Path'
+    },
+    variables: {
+      title: 'Variable Manager',
+      name: 'Variable Name',
+      type: 'Type',
+      value: 'Default Value',
+      description: 'Description',
+      search: 'Search variables...',
+      add: 'Add Variable',
+      insert: 'Insert Variable'
+    },
+    quickJump: {
+      title: 'Quick Jump',
+      search: 'Search labels, bookmarks...',
+      label: 'Label',
+      bookmark: 'Bookmark',
+      recent: 'Recent',
+      addBookmark: 'Add Bookmark',
+      removeBookmark: 'Remove Bookmark'
+    },
+    validation: {
+      title: 'Script Validation',
+      noErrors: 'No errors found',
+      errors: 'Errors found',
+      warnings: 'Warnings',
+      unusedLabel: 'Unused label',
+      undefinedJump: 'Undefined jump target',
+      missingCharacter: 'Undefined character'
     }
   }
 };
